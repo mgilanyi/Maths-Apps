@@ -41,6 +41,23 @@
             width: 100%;
             max-width: 650px; /* Slightly wider container */
             border: 1px solid #444; /* Subtle border */
+            position: relative; /* Needed for absolute positioning of home link */
+        }
+        .home-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #66ccff; /* Vibrant blue */
+            font-size: 1em;
+            padding: 8px 15px;
+            border: 1px solid #66ccff;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .home-link:hover {
+            background-color: #66ccff;
+            color: #1a1a1a;
         }
         h1 {
             color: #66ccff; /* A vibrant blue for the heading */
@@ -188,6 +205,9 @@
 </head>
 <body>
     <div class="container">
+        <!-- Home link added -->
+        <a href="index.html" class="home-link">Home</a>
+
         <h1>First Step of Equation Solving</h1>
         <p>Identify the first step to solve the following equation:</p>
         <div id="equation-display"></div>
