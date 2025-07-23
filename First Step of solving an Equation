@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equation Solver First Step Applet</title>
+    <!-- MathJax Configuration: MUST be defined BEFORE the MathJax script is loaded -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <!-- MathJax CDN for rendering mathematical equations -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Basic styling for the applet layout and appearance */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font for a modern look */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light text for contrast */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #2c2c2c; /* Slightly lighter dark background for the container */
+            padding: 30px 40px;
+            border-radius: 15px; /* More rounded corners */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* More prominent shadow */
+            text-align: center;
+            width: 100%;
+            max-width: 650px; /* Slightly wider container */
+            border: 1px solid #444; /* Subtle border */
+        }
+        h1 {
+            color: #66ccff; /* A vibrant blue for the heading */
+            margin-bottom: 25px;
+            font-size: 2.2em; /* Larger heading */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        p {
+            color: #bbbbbb; /* Lighter grey for general text */
+        }
+        #equation-display {
+            font-size: 2.8em; /* Larger equation font */
+            font-weight: bold;
+            margin-bottom: 35px;
+            color: #aaffaa; /* Greenish tint for equations */
+            padding: 15px;
+            background-color: #3a3a3a; /* Darker background for equation display */
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #555;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-section p {
+            font-size: 1.2em; /* Larger input instruction text */
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 25px; /* More space between options */
+            /* Removed flex-wrap: wrap; to keep operations on one line */
+        }
+        .options label {
+            cursor: pointer;
+            padding: 12px 25px; /* More padding */
+            border: 2px solid #555; /* Darker border */
+            border-radius: 8px; /* Nicer rounded corners */
+            transition: all 0.3s ease-in-out;
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #444; /* Darker background for labels */
+            color: #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .options label:hover {
+            background-color: #555; /* Lighter hover effect */
+            border-color: #888;
+        }
+        /* Visually hide the radio buttons, but keep them functional */
+        .options input[type="radio"] {
+            display: none; /* Hides the radio button circle */
+        }
+        .options input[type="radio"]:checked + label {
+            background-color: #66ccff; /* Vibrant blue when selected */
+            border-color: #66ccff;
+            color: #1a1a1a; /* Dark text on selected background */
+            box-shadow: 0 4px 10px rgba(102, 204, 255, 0.4); /* Glow effect */
+            transform: translateY(-2px); /* Slight lift on selection */
+        }
+        #number-input {
+            padding: 12px;
+            font-size: 1.3em; /* Larger font */
+            width: 150px; /* Slightly wider */
+            border: 2px solid #555;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            background-color: #3a3a3a; /* Dark background for input */
+            color: #e0e0e0; /* Light text color */
+            outline: none; /* Remove default outline */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+            -moz-appearance: textfield; /* Firefox specific to remove arrows */
+        }
+        /* Webkit browsers (Chrome, Safari) to remove arrows for type="number" */
+        #number-input::-webkit-outer-spin-button,
+        #number-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Ensure text input behaves like number input for styling */
+        #number-input[type="text"] {
+            -webkit-appearance: none; /* Remove default Safari/Chrome styling */
+            -moz-appearance: textfield; /* Firefox */
+        }
+        #number-input:focus {
+            border-color: #66ccff; /* Highlight on focus */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 8px rgba(102, 204, 255, 0.6);
+        }
+        button {
+            padding: 15px 40px; /* More padding */
+            font-size: 1.2em; /* Larger font */
+            background-color: #2ecc71; /* Green button */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            margin-top: 30px;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        }
+        button:hover {
+            background-color: #27ae60; /* Darker green on hover */
+            transform: translateY(-2px); /* Slight lift */
+            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+        }
+        button:active {
+            transform: translateY(0); /* Press effect */
+            box-shadow: 0 2px 5px rgba(46, 204, 113, 0.2);
+        }
+        #feedback-message {
+            margin-top: 30px;
+            font-size: 1.4em; /* Larger feedback message */
+            font-weight: bold;
+            min-height: 35px; /* Reserve more space */
+        }
+        .correct {
+            color: #27ae60; /* Green for correct */
+            text-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+        }
+        .incorrect {
+            color: #e74c3c; /* Red for incorrect */
+            text-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>First Step of Equation Solving</h1>
+        <p>Identify the first step to solve the following equation:</p>
+        <div id="equation-display"></div>
+
+        <div class="input-section">
+            <p>Choose the operation and enter the number:</p>
+            <div class="options">
+                <input type="radio" id="add" name="operation" value="add">
+                <label for="add">Add</label>
+
+                <input type="radio" id="subtract" name="operation" value="subtract">
+                <label for="subtract">Subtract</label>
+
+                <input type="radio" id="multiply" name="operation" value="multiply">
+                <label for="multiply">Multiply</label>
+
+                <input type="radio" id="divide" name="operation" value="divide">
+                <label for="divide">Divide</label>
+            </div>
+            <!-- Changed type to "text" to remove arrows, added pattern and inputmode for numeric keyboard on mobile -->
+            <input type="text" id="number-input" placeholder="Enter number" pattern="[0-9.-]*" inputmode="numeric">
+        </div>
+
+        <button id="check-button">Check Answer</button>
+        <div id="feedback-message"></div>
+    </div>
+
+    <script>
+        const equationDisplay = document.getElementById('equation-display');
+        const operationRadios = document.querySelectorAll('input[name="operation"]');
+        const numberInput = document.getElementById('number-input');
+        const checkButton = document.getElementById('check-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+
+        let currentEquation = {}; // Stores the equation details and correct answer
+
+        /**
+         * Generates a random integer within a specified range (inclusive).
+         * @param {number} min - The minimum value.
+         * @param {number} max - The maximum value.
+         * @returns {number} A random integer.
+         */
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        /**
+         * Generates a linear equation (1, 2, or 3-step) and its correct first step.
+         * Equations will not have unknowns on both sides.
+         * @returns {object} An object containing the equation string (in LaTeX) and the first step details.
+         */
+        function generateEquation() {
+            const type = getRandomInt(1, 3); // Randomly choose between 1, 2, or 3-step equation
+            let equation = '';
+            let firstStep = { operation: '', value: 0 };
+            let a, b, c, xSolution;
+
+            switch (type) {
+                case 1: // One-step equation
+                    const oneStepVariant = getRandomInt(1, 3); // 1: x+/-A=B, 2: Ax=B, 3: x/A=B
+                    xSolution = getRandomInt(-10, 10); // Target solution for x
+
+                    if (oneStepVariant === 1) { // x + A = B  (e.g., x + 5 = 12)
+                        const constantValue = getRandomInt(1, 10); // Positive constant for display
+                        if (Math.random() < 0.5) { // x + A = B
+                            equation = `$$x + ${constantValue} = ${xSolution + constantValue}$$`;
+                            firstStep = { operation: 'subtract', value: constantValue };
+                        } else { // x - A = B
+                            equation = `$$x - ${constantValue} = ${xSolution - constantValue}$$`;
+                            firstStep = { operation: 'add', value: constantValue };
+                        }
+                    } else if (oneStepVariant === 2) { // Ax = B (e.g., 2x = 10)
+                        a = getRandomInt(-7, 7);
+                        while (a === 0 || a === 1 || a === -1) { a = getRandomInt(-7, 7); } // Avoid trivial coefficients
+                        equation = `$$${a}x = ${a * xSolution}$$`;
+                        firstStep = { operation: 'divide', value: a };
+                    } else { // x / A = B (e.g., x / 4 = 3)
+                        a = getRandomInt(-7, 7);
+                        while (a === 0) { a = getRandomInt(-7, 7); } // Avoid division by zero
+                        equation = `$$\\frac{x}{${a}} = ${xSolution}$$`; // Use LaTeX for fraction
+                        firstStep = { operation: 'multiply', value: a };
+                    }
+                    break;
+
+                case 2: // Two-step equation: Ax +/- B = C
+                    a = getRandomInt(-5, 5);
+                    while (a === 0 || a === 1 || a === -1) { a = getRandomInt(-5, 5); } // Avoid trivial coefficients
+                    b = getRandomInt(-10, 10); // Constant term
+                    xSolution = getRandomInt(-5, 5); // Target solution for x
+                    c = a * xSolution + b; // Calculate C based on xSolution
+
+                    if (b >= 0) { // Ax + B = C (e.g., 2x + 5 = 15)
+                        equation = `$$${a}x + ${b} = ${c}$$`;
+                        firstStep = { operation: 'subtract', value: b };
+                    } else { // Ax - B = C (e.g., 2x - 5 = 5)
+                        equation = `$$${a}x - ${Math.abs(b)} = ${c}$$`;
+                        firstStep = { operation: 'add', value: Math.abs(b) };
+                    }
+                    break;
+
+                case 3: // Three-step equation (x only on one side): A(x + B) = C or (x + A) / B = C
+                    const threeStepVariant = getRandomInt(1, 2); // 1: A(x+B)=C, 2: (x+A)/B=C
+                    xSolution = getRandomInt(-5, 5); // Target solution for x
+
+                    if (threeStepVariant === 1) { // A(x + B) = C
+                        a = getRandomInt(-5, 5);
+                        while (a === 0 || a === 1 || a === -1) { a = getRandomInt(-5, 5); } // Coefficient outside parenthesis
+                        b = getRandomInt(-10, 10); // Constant inside parenthesis
+                        c = a * (xSolution + b); // Calculate C
+
+                        equation = `$$${a}(x ${b >= 0 ? '+' : '-'} ${Math.abs(b)}) = ${c}$$`;
+                        firstStep = { operation: 'divide', value: a };
+                    } else { // (x + A) / B = C
+                        b = getRandomInt(-7, 7); // Denominator
+                        while (b === 0 || b === 1 || b === -1) { b = getRandomInt(-7, 7); } // Avoid trivial denominator
+                        c = getRandomInt(-5, 5); // The value on the right side of the equation
+                        // Calculate 'a' such that (xSolution + a) results in an integer 'c'
+                        // xSolution + a = b * c  =>  a = b * c - xSolution
+                        a = b * c - xSolution;
+
+                        equation = `$$\\frac{x ${a >= 0 ? '+' : '-'} ${Math.abs(a)}}{${b}} = ${c}$$`;
+                        firstStep = { operation: 'multiply', value: b };
+                    }
+                    break;
+            }
+
+            return { equation, firstStep };
+        }
+
+        /**
+         * Displays a new randomly generated equation and clears feedback/input fields.
+         * Also triggers MathJax to typeset the new equation.
+         */
+        function displayNewEquation() {
+            currentEquation = generateEquation();
+            equationDisplay.textContent = currentEquation.equation;
+            // Trigger MathJax to render the new equation
+            // Use MathJax.typesetPromise to ensure rendering completes before proceeding
+            MathJax.typesetPromise([equationDisplay]).then(() => {
+                // Optional: You can do something after rendering if needed
+            }).catch((err) => {
+                console.error("MathJax typesetting error:", err);
+            });
+
+            feedbackMessage.textContent = ''; // Clear previous feedback
+            feedbackMessage.className = ''; // Remove feedback styling
+            numberInput.value = ''; // Clear number input
+            operationRadios.forEach(radio => radio.checked = false); // Uncheck all radio buttons
+        }
+
+        /**
+         * Checks the student's entered answer against the correct first step.
+         */
+        function checkAnswer() {
+            const selectedOperation = document.querySelector('input[name="operation"]:checked');
+            // Use parseFloat for text input as well, it handles numeric strings
+            const enteredNumber = parseFloat(numberInput.value);
+
+            // Validate user input
+            if (!selectedOperation) {
+                feedbackMessage.textContent = 'Please select an operation.';
+                feedbackMessage.className = 'incorrect';
+                return;
+            }
+            if (isNaN(enteredNumber)) {
+                feedbackMessage.textContent = 'Please enter a valid number.';
+                feedbackMessage.className = 'incorrect';
+                return;
+            }
+
+            // Compare user's answer with the correct first step
+            const isOperationCorrect = selectedOperation.value === currentEquation.firstStep.operation;
+            const isNumberCorrect = enteredNumber === currentEquation.firstStep.value;
+
+            if (isOperationCorrect && isNumberCorrect) {
+                feedbackMessage.textContent = 'Correct! Well done.';
+                feedbackMessage.className = 'correct';
+                setTimeout(displayNewEquation, 1500); // Load next question after 1.5 seconds
+            } else {
+                feedbackMessage.textContent = 'Incorrect. Please try again.';
+                feedbackMessage.className = 'incorrect';
+            }
+        }
+
+        // --- Event Listeners ---
+        checkButton.addEventListener('click', checkAnswer);
+        
+        // Allow pressing Enter key to check answer in the number input field
+        numberInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                checkButton.click();
+            }
+        });
+
+        // Initial setup: Display the first equation when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            displayNewEquation(); 
+        });
+    </script>
+</body>
+</html>
