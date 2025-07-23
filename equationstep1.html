@@ -82,7 +82,10 @@
             display: flex;
             justify-content: center;
             gap: 25px; /* More space between options */
-            /* Removed flex-wrap: wrap; to keep operations on one line */
+            flex-wrap: wrap; /* Allows wrapping */
+            max-width: 300px; /* Constrain width to force wrapping for 2 per line */
+            margin-left: auto; /* Center the options block */
+            margin-right: auto; /* Center the options block */
         }
         .options label {
             cursor: pointer;
@@ -97,6 +100,10 @@
             background-color: #444; /* Darker background for labels */
             color: #e0e0e0;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            /* Calculate width to fit two per line, accounting for gap */
+            width: calc(50% - 12.5px); /* 50% minus half the gap for each side */
+            justify-content: center; /* Center text within the label */
+            box-sizing: border-box; /* Include padding and border in the width */
         }
         .options label:hover {
             background-color: #555; /* Lighter hover effect */
