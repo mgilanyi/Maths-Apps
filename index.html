@@ -1,16 +1,139 @@
-<html>
-  <head>
-    <title>
-      Maths Apps
-    </title>
-  </head>
-  <body>
-    <ul>
-      <li>
-        <a href="equationstep1.html">
-          Equation Step 1
-        </a>
-      </li>
-    </ul>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maths App Library</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light text for contrast */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #2c2c2c; /* Slightly lighter dark background for the container */
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 100%;
+            max-width: 700px; /* Wider container for the main page */
+            border: 1px solid #444;
+        }
+        header {
+            margin-bottom: 30px;
+        }
+        header h1 {
+            color: #66ccff; /* Vibrant blue for the main heading */
+            font-size: 2.8em; /* Larger main title */
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        /* The image styling is no longer needed as the image is removed */
+        /*
+        header img {
+            max-width: 150px;
+            height: auto;
+            border-radius: 50%;
+            border: 3px solid #66ccff;
+            box-shadow: 0 0 15px rgba(102, 204, 255, 0.5);
+            margin-bottom: 20px;
+        }
+        */
+        .applet-section {
+            margin-top: 30px;
+        }
+        .applet-section h2 {
+            color: #aaffaa; /* Greenish tint for section heading */
+            font-size: 1.8em;
+            margin-bottom: 25px;
+        }
+        .applet-list {
+            list-style: none; /* Remove default bullet points */
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            gap: 15px; /* Space between applet links */
+        }
+        .applet-list li {
+            background-color: #3a3a3a; /* Darker background for each list item */
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .applet-list li:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+        .applet-list a {
+            display: block; /* Make the entire list item clickable */
+            padding: 18px 25px;
+            text-decoration: none; /* Remove underline */
+            color: #e0e0e0; /* Light text color */
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+        .applet-list a:hover {
+            color: #66ccff; /* Change text color on hover */
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888888;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            .applet-section h2 {
+                font-size: 1.5em;
+            }
+            .applet-list a {
+                font-size: 1.1em;
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <!-- Image removed as requested -->
+            <h1>Welcome to the Maths App Library!</h1>
+            <p>Your interactive resource for mastering mathematical concepts.</p>
+        </header>
+
+        <main class="applet-section">
+            <h2>Explore Our Applets:</h2>
+            <ul class="applet-list">
+                <li>
+                    <a href="equationstep1.html">
+                        Equation Step 1 Solver
+                    </a>
+                </li>
+                <!-- Add more applets here as you create them -->
+                <!-- <li><a href="another_applet.html">Another Cool Applet</a></li> -->
+            </ul>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Maths App Library. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
 </html>
