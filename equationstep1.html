@@ -65,8 +65,10 @@
             font-size: 2.2em; /* Larger heading */
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
-        p {
+        .instruction-text { /* New class for the instruction paragraph */
             color: #bbbbbb; /* Lighter grey for general text */
+            font-size: 1.3em; /* Matching the operations box font size */
+            margin-bottom: 20px; /* Adjusted margin */
         }
         #equation-display {
             font-size: 2.8em; /* Larger equation font */
@@ -89,12 +91,7 @@
             flex-direction: column;
             align-items: center;
         }
-        .input-section p {
-            font-size: 1.2em; /* Larger input instruction text */
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: #e0e0e0;
-        }
+        /* Removed styling for .input-section p as that paragraph is deleted */
         .options {
             display: flex;
             justify-content: center;
@@ -121,6 +118,7 @@
             width: calc(50% - 12.5px); /* 50% minus half the gap for each side */
             justify-content: center; /* Center text within the label */
             box-sizing: border-box; /* Include padding and border in the width */
+            font-size: 1.3em; /* Explicitly setting font size for operations */
         }
         .options label:hover {
             background-color: #555; /* Lighter hover effect */
@@ -209,11 +207,12 @@
         <a href="index.html" class="home-link">Home</a>
 
         <h1>First Step of Equation Solving</h1>
-        <p>Identify the first step to solve the following equation:</p>
+        <!-- Added class "instruction-text" to this paragraph -->
+        <p class="instruction-text">Identify the first step to solve the following equation:</p>
         <div id="equation-display"></div>
 
         <div class="input-section">
-            <p>Choose the operation and enter the number:</p>
+            <!-- Removed the paragraph "Choose the operation and enter the number:" -->
             <div class="options">
                 <input type="radio" id="add" name="operation" value="add">
                 <label for="add">Add</label>
