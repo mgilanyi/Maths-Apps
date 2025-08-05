@@ -83,7 +83,7 @@
 <body class="bg-slate-800 text-slate-200">
     <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl min-h-screen relative">
         <!-- Home Button -->
-        <a href="index.html" class="home-link">Home</a>
+        <a href="index.html" id="home-button" class="home-link">Home</a>
         
         <!-- Main Menu -->
         <div id="main-menu" class="text-center pt-16">
@@ -226,6 +226,7 @@
         const successModal = document.getElementById('success-modal');
         const modalContent = successModal.querySelector('.modal-content');
         const finalAnswerDisplay = document.getElementById('final-answer');
+        const homeButton = document.getElementById('home-button');
 
         // --- Event Listeners ---
         negativeToggle.addEventListener('change', (e) => { allowNegatives = e.target.checked; });
@@ -253,6 +254,7 @@
         function showMainMenu() {
             mainMenu.classList.remove('hidden');
             equationScreen.classList.add('hidden');
+            homeButton.classList.remove('hidden');
         }
 
         function showEquationScreen(type) {
@@ -260,6 +262,7 @@
             mainMenu.classList.add('hidden');
             equationScreen.classList.remove('hidden');
             controls.classList.remove('hidden');
+            homeButton.classList.add('hidden');
             
             const titles = {
                 'one-step': 'One-Step Equation', 'two-step': 'Two-Step Equation',
@@ -590,7 +593,7 @@
 
         function getRandomInt(min, max, allowNegative = false) {
             let val = Math.floor(Math.random() * (max - min + 1)) + min;
-            return allowNegative && Math.random() * 0.5 > 0.5 ? -val : val;
+            return allowNegative && Math.random() > 0.5 ? -val : val;
         }
     </script>
 </body>
