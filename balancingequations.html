@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solving Equations by Balancing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .seesaw-beam {
+            background: #d1d5db; /* gray-300 */
+            transition: transform 0.3s ease-in-out;
+        }
+        .fulcrum {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 80px solid #d1d5db; /* gray-300 */
+        }
+        .x-box, .weight {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .x-box { border-radius: 8px; }
+        .weight { border-radius: 50%; }
+
+        .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #22c55e; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .modal { transition: opacity 0.25s ease; }
+        .modal-content { transition: transform 0.25s ease; }
+        
+        .btn-disabled { background-color: #4b5563; color: #9ca3af; cursor: not-allowed; }
+        .btn-disabled:hover { background-color: #4b5563; }
+
+        .preview-box {
+            position: absolute;
+            background-color: rgba(75, 85, 99, 0.8); /* gray-600 with opacity */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none; /* Allows clicks to pass through */
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-slate-800 text-slate-200">
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl min-h-screen">
+        <!-- Main Menu -->
+        <div id="main-menu" class="text-center">
+            <h1 class="text-4xl font-bold mb-8 text-slate-100">Solving Equations by Balancing</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button onclick="showEquationScreen('one-step')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <span class="text-2xl font-bold block">One-step</span>
+                    <span class="text-lg font-normal mt-2 block">\(\Large x+3=7\)</span>
+                </button>
+                <button onclick="showEquationScreen('two-step')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <span class="text-2xl font-bold block">Two-step</span>
+                    <span class="text-lg font-normal mt-2 block">\(\Large 2x+5=11\)</span>
+                </button>
+                <button onclick="showEquationScreen('both-sides')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                     <span class="text-2xl font-bold block">Both Sides</span>
+                    <span class="text-lg font-normal mt-2 block">\(\Large 3x+1=x+9\)</span>
+                </button>
+                <button onclick="showEquationScreen('custom')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <span class="text-2xl font-bold block">Custom</span>
+                    <span class="text-lg font-normal mt-2 block">Enter your own</span>
+                </button>
+            </div>
+            <div class="mt-8 flex items-center justify-center space-x-4">
+                <span class="text-lg font-medium text-slate-300">Negative Values</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="negative-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Equation Screen -->
+        <div id="equation-screen" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="showMainMenu()" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">&larr; Main Menu</button>
+                 <h2 id="equation-type-title" class="text-2xl font-bold text-slate-300"></h2>
+                <button onclick="generateNewEquation()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">New Equation</button>
+            </div>
+
+            <div id="equation-display" class="text-center text-4xl font-bold my-8 p-4 bg-slate-700 rounded-lg shadow-inner min-h-[80px]"></div>
+            
+            <div id="custom-input-container" class="hidden text-center my-8">
+                <label for="custom-equation" class="text-xl font-medium">Enter Linear Equation:</label>
+                <input type="text" id="custom-equation" class="mt-2 p-2 border-2 bg-slate-600 border-slate-500 rounded-lg w-full max-w-md mx-auto text-lg text-white" placeholder="e.g., 2x + 3 = 7">
+                 <button onclick="parseCustomEquation()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md">Show</button>
+                 <p id="error-message" class="text-red-400 mt-2 h-6"></p>
+            </div>
+
+            <div class="relative mt-12 mb-20 h-80">
+                <!-- Preview containers -->
+                <div id="lhs-preview" class="absolute left-0 top-0 w-1/2 h-full flex justify-center items-start pt-4 opacity-0"></div>
+                <div id="rhs-preview" class="absolute right-0 top-0 w-1/2 h-full flex justify-center items-start pt-4 opacity-0"></div>
+                
+                <!-- Object containers -->
+                <div id="lhs-objects" class="absolute left-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap"></div>
+                <div id="rhs-objects" class="absolute right-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap"></div>
+                <div id="rhs-divide-preview" class="absolute right-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap opacity-0"></div>
+                <div id="lhs-divide-preview" class="absolute left-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap opacity-0"></div>
+
+                <!-- Seesaw apparatus -->
+                <div class="absolute bottom-0 w-full" style="height: 104px;">
+                    <div class="seesaw-beam w-full h-6 absolute bottom-20 rounded-md"></div>
+                    <div class="fulcrum absolute bottom-0 left-1/2 -translate-x-1/2"></div>
+                </div>
+            </div>
+
+            <!-- Solving Controls -->
+            <div id="controls" class="bg-slate-700 p-4 rounded-lg shadow-lg">
+                <h3 class="text-xl font-bold text-center mb-4">Control Panel</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <!-- Modify Weights -->
+                    <div class="bg-slate-600 p-3 rounded-md">
+                        <label for="weight-value" class="block text-center font-medium mb-2">Modify Weights</label>
+                        <input type="number" id="weight-value" class="w-full p-2 rounded bg-slate-500 text-white text-center" placeholder="Value">
+                        <div class="flex justify-center gap-2 mt-2">
+                            <button id="add-weight-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-1/2">Add</button>
+                            <button id="subtract-weight-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-1/2">Subtract</button>
+                        </div>
+                    </div>
+                    <!-- Modify Variables -->
+                     <div class="bg-slate-600 p-3 rounded-md">
+                        <label for="xbox-value" class="block text-center font-medium mb-2">Modify Variables</label>
+                        <input type="number" id="xbox-value" class="w-full p-2 rounded bg-slate-500 text-white text-center" placeholder="How many?">
+                         <div class="flex justify-center gap-2 mt-2">
+                            <button id="add-xbox-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-1/2">Add</button>
+                            <button id="subtract-xbox-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-1/2">Subtract</button>
+                        </div>
+                    </div>
+                    <!-- Divide -->
+                     <div class="bg-slate-600 p-3 rounded-md">
+                        <label for="divide-value" class="block text-center font-medium mb-2">Divide Both Sides</label>
+                        <input type="number" id="divide-value" class="w-full p-2 rounded bg-slate-500 text-white text-center" placeholder="Divide by...">
+                         <div class="flex justify-center gap-2 mt-2">
+                            <button id="divide-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-full transition-colors">Divide</button>
+                        </div>
+                    </div>
+                </div>
+                 <div class="flex justify-center gap-4 mt-4">
+                    <button onclick="resetEquation()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-800 font-bold py-2 px-6 rounded-lg">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="success-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+            <div class="modal-content relative bg-slate-700 rounded-lg shadow-2xl p-8 text-center max-w-sm transform scale-95">
+                <button onclick="closeModal()" class="absolute top-2 right-3 text-slate-400 hover:text-white text-3xl font-bold">&times;</button>
+                <h2 class="text-3xl font-bold text-green-400 mb-4">Congratulations!</h2>
+                <p class="text-lg mb-6">You solved the equation correctly!</p>
+                <p id="final-answer" class="text-2xl font-mono p-3 bg-slate-800 rounded-md mb-6"></p>
+                <button onclick="closeModalAndNew()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg">New Equation</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEquationType = '';
+        let allowNegatives = false;
+        let originalEquation = {};
+        let currentEquation = {};
+        let isSolving = false; // Prevents multiple rapid checks
+
+        // DOM Elements
+        const mainMenu = document.getElementById('main-menu');
+        const equationScreen = document.getElementById('equation-screen');
+        const equationDisplay = document.getElementById('equation-display');
+        const equationTypeTitle = document.getElementById('equation-type-title');
+        const lhsObjects = document.getElementById('lhs-objects');
+        const rhsObjects = document.getElementById('rhs-objects');
+        const lhsPreview = document.getElementById('lhs-preview');
+        const rhsPreview = document.getElementById('rhs-preview');
+        const lhsDividePreview = document.getElementById('lhs-divide-preview');
+        const rhsDividePreview = document.getElementById('rhs-divide-preview');
+        const negativeToggle = document.getElementById('negative-toggle');
+        const customInputContainer = document.getElementById('custom-input-container');
+        const customEquationInput = document.getElementById('custom-equation');
+        const errorMessage = document.getElementById('error-message');
+        const controls = document.getElementById('controls');
+        const divideButton = document.getElementById('divide-button');
+        const successModal = document.getElementById('success-modal');
+        const modalContent = successModal.querySelector('.modal-content');
+        const finalAnswerDisplay = document.getElementById('final-answer');
+
+        // --- Event Listeners ---
+        negativeToggle.addEventListener('change', (e) => { allowNegatives = e.target.checked; });
+        
+        // Control Panel Buttons
+        document.getElementById('add-weight-btn').addEventListener('click', () => modifyWeight('add'));
+        document.getElementById('subtract-weight-btn').addEventListener('click', () => modifyWeight('subtract'));
+        document.getElementById('add-xbox-btn').addEventListener('click', () => modifyXBox('add'));
+        document.getElementById('subtract-xbox-btn').addEventListener('click', () => modifyXBox('subtract'));
+        divideButton.addEventListener('click', divideSides);
+
+        // Hover Listeners
+        document.getElementById('add-weight-btn').addEventListener('mouseenter', () => handleHover('weight', 'add'));
+        document.getElementById('add-weight-btn').addEventListener('mouseleave', handleHoverOut);
+        document.getElementById('subtract-weight-btn').addEventListener('mouseenter', () => handleHover('weight', 'subtract'));
+        document.getElementById('subtract-weight-btn').addEventListener('mouseleave', handleHoverOut);
+        document.getElementById('add-xbox-btn').addEventListener('mouseenter', () => handleHover('xbox', 'add'));
+        document.getElementById('add-xbox-btn').addEventListener('mouseleave', handleHoverOut);
+        document.getElementById('subtract-xbox-btn').addEventListener('mouseenter', () => handleHover('xbox', 'subtract'));
+        document.getElementById('subtract-xbox-btn').addEventListener('mouseleave', handleHoverOut);
+        divideButton.addEventListener('mouseenter', handleDivideHoverIn);
+        divideButton.addEventListener('mouseleave', handleDivideHoverOut);
+
+
+        function showMainMenu() {
+            mainMenu.classList.remove('hidden');
+            equationScreen.classList.add('hidden');
+        }
+
+        function showEquationScreen(type) {
+            currentEquationType = type;
+            mainMenu.classList.add('hidden');
+            equationScreen.classList.remove('hidden');
+            controls.classList.remove('hidden');
+            
+            const titles = {
+                'one-step': 'One-Step Equation', 'two-step': 'Two-Step Equation',
+                'both-sides': 'Variables on Both Sides', 'custom': 'Custom Equation'
+            };
+            equationTypeTitle.textContent = titles[type];
+
+            if (type === 'custom') {
+                customInputContainer.classList.remove('hidden');
+                controls.classList.add('hidden');
+                equationDisplay.innerHTML = '';
+                lhsObjects.innerHTML = '';
+                rhsObjects.innerHTML = '';
+                errorMessage.textContent = '';
+                customEquationInput.value = '';
+            } else {
+                customInputContainer.classList.add('hidden');
+                generateNewEquation();
+            }
+        }
+
+        function generateNewEquation() {
+            isSolving = false;
+            if (currentEquationType === 'custom') {
+                showEquationScreen('custom');
+                return;
+            }
+            let a, b, c, d, x;
+            errorMessage.textContent = '';
+            let attempts = 0;
+            while (attempts < 100) {
+                attempts++;
+                x = getRandomInt(1, 10, allowNegatives);
+                switch (currentEquationType) {
+                    case 'one-step':
+                        if (Math.random() > 0.5) { a = 1; c = 0; b = getRandomInt(1, 20, allowNegatives); d = x + b; } 
+                        else { a = getRandomInt(2, 6, allowNegatives); if (a === 0) a = 1; b = 0; c = 0; d = a * x; }
+                        break;
+                    case 'two-step':
+                         if (Math.random() > 0.5) { a = getRandomInt(2, 6, allowNegatives); if (a === 0) a = 2; b = getRandomInt(1, 20, allowNegatives); c = 0; d = a * x + b; } 
+                         else { c = getRandomInt(2, 6, allowNegatives); if (c === 0) c = 2; d = getRandomInt(1, 20, allowNegatives); a = 0; b = c * x + d; }
+                        break;
+                    case 'both-sides':
+                        a = getRandomInt(1, 6, allowNegatives); c = getRandomInt(1, 6, allowNegatives);
+                        if (a === c) c += (c > 0 ? 1 : -1) || 1;
+                        b = getRandomInt(1, 20, allowNegatives); d = (a * x + b) - (c * x);
+                        break;
+                }
+                if (!Number.isInteger(x) || (!allowNegatives && (x <= 0 || b < 0 || d < 0)) || Math.abs(b) > 20 || Math.abs(d) > 20) continue;
+                originalEquation = { a, b, c, d };
+                updateAndDisplayEquation(a, b, c, d);
+                return; 
+            }
+            errorMessage.textContent = "Could not generate a valid equation.";
+        }
+
+        function parseCustomEquation() {
+            const input = customEquationInput.value;
+            errorMessage.textContent = '';
+            const sides = input.split('=');
+            if (sides.length !== 2) {
+                errorMessage.textContent = "Invalid format: must contain one '=' sign.";
+                return;
+            }
+            try {
+                const parseSide = (sideStr) => {
+                    let xCoeff = 0, constant = 0;
+                    if (!sideStr || sideStr.trim() === '') return { xCoeff, constant };
+                    const terms = sideStr.trim().match(/[+-]?(\d*\.?\d*x|\d*\.?\d+)/g) || [];
+                    terms.forEach(term => {
+                        if (term.includes('x')) {
+                            if (term === 'x' || term === '+x') xCoeff += 1;
+                            else if (term === '-x') xCoeff -= 1;
+                            else xCoeff += parseFloat(term.replace('x', ''));
+                        } else {
+                            constant += parseFloat(term);
+                        }
+                    });
+                    return { xCoeff, constant };
+                };
+                let left = parseSide(sides[0]), right = parseSide(sides[1]);
+                const a = left.xCoeff, b = left.constant, c = right.xCoeff, d = right.constant;
+                if (a - c === 0) {
+                     errorMessage.textContent = b === d ? 'Infinite solutions.' : 'No solution.';
+                     return;
+                }
+                const x = (d - b) / (a - c);
+                if (!Number.isInteger(x) || (!allowNegatives && x <= 0)) {
+                    errorMessage.textContent = !Number.isInteger(x) ? 'Sorry, only integer solutions are supported.' : 'With "Negative Values" off, x must be positive.';
+                    return;
+                }
+                originalEquation = { a, b, c, d };
+                updateAndDisplayEquation(a, b, c, d);
+                customInputContainer.classList.add('hidden');
+                controls.classList.remove('hidden');
+            } catch (e) {
+                 errorMessage.textContent = 'Could not parse the equation.';
+                 console.error(e);
+            }
+        }
+
+        function updateAndDisplayEquation(a, b, c, d) {
+            currentEquation = { a, b, c, d };
+            let lhsStr = formatSide(a, b), rhsStr = formatSide(c, d);
+            equationDisplay.innerHTML = `\\( ${lhsStr} = ${rhsStr} \\)`;
+            MathJax.typesetPromise().catch(err => console.log(err));
+            renderSeesaw(a, b, c, d);
+            updateControlsState();
+        }
+
+        function formatSide(coeff, constant) {
+            let parts = [];
+            if (coeff !== 0) {
+                if (coeff === 1) parts.push('x');
+                else if (coeff === -1) parts.push('-x');
+                else parts.push(`${coeff}x`);
+            }
+            if (constant !== 0) {
+                if (parts.length > 0) parts.push(constant > 0 ? `+ ${constant}` : `- ${Math.abs(constant)}`);
+                else parts.push(constant.toString());
+            }
+            if (parts.length === 0) return '0';
+            return parts.join(' ');
+        }
+        
+        function renderSeesaw(a, b, c, d) {
+            lhsObjects.innerHTML = '';
+            rhsObjects.innerHTML = '';
+            addObjectsToSide(lhsObjects, a, b);
+            addObjectsToSide(rhsObjects, c, d);
+            MathJax.typesetPromise().catch(err => console.log(err));
+        }
+
+        function addObjectsToSide(container, coeff, constant) {
+            if (coeff !== 0) {
+                const numBoxes = Math.abs(coeff);
+                const boxSize = Math.max(24, 55 - numBoxes * 4);
+                for (let i = 0; i < numBoxes; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'x-box';
+                    box.style.width = `${boxSize}px`; box.style.height = `${boxSize}px`;
+                    box.style.fontSize = `${boxSize * 0.5}px`;
+                    box.innerHTML = `\\(${coeff > 0 ? 'x' : '-x'}\\)`;
+                    box.classList.add(coeff > 0 ? 'bg-blue-500' : 'bg-orange-500');
+                    container.appendChild(box);
+                }
+            }
+            if (constant !== 0) {
+                const weightSize = Math.max(24, Math.min(80, Math.abs(constant) * 4 + 20));
+                const weight = document.createElement('div');
+                weight.className = 'weight';
+                weight.style.width = `${weightSize}px`; weight.style.height = `${weightSize}px`;
+                weight.style.fontSize = `${weightSize * 0.4}px`;
+                weight.innerHTML = `\\(${constant}\\)`; 
+                weight.classList.add(constant > 0 ? 'bg-green-500' : 'bg-red-500');
+                container.appendChild(weight);
+            }
+        }
+
+        function performOperation(newA, newB, newC, newD) {
+            updateAndDisplayEquation(newA, newB, newC, newD);
+            checkForSolution();
+        }
+
+        function modifyWeight(action) {
+            handleHoverOut();
+            const input = document.getElementById('weight-value');
+            const value = parseFloat(input.value);
+            if (isNaN(value)) return;
+            const change = action === 'add' ? value : -value;
+            performOperation(currentEquation.a, currentEquation.b + change, currentEquation.c, currentEquation.d + change);
+            input.value = '';
+        }
+
+        function modifyXBox(action) {
+            handleHoverOut();
+            const input = document.getElementById('xbox-value');
+            const value = parseFloat(input.value);
+            if (isNaN(value) || value <= 0) return;
+            const change = action === 'add' ? value : -value;
+            performOperation(currentEquation.a + change, currentEquation.b, currentEquation.c + change, currentEquation.d);
+            input.value = '';
+        }
+
+        function divideSides() {
+            handleDivideHoverOut(); // Hide preview on click
+            const input = document.getElementById('divide-value');
+            const divisor = parseFloat(input.value);
+            if (isNaN(divisor) || divisor === 0) return;
+            const { a, b, c, d } = currentEquation;
+            if (a % divisor !== 0 || b % divisor !== 0 || c % divisor !== 0 || d % divisor !== 0) {
+                alert("This operation would result in fractions. Please choose another number.");
+                return;
+            }
+            performOperation(a / divisor, b / divisor, c / divisor, d / divisor);
+            input.value = '';
+        }
+
+        function updateControlsState() {
+            const { a, b, c, d } = currentEquation;
+            const isDivideStep = (b === 0 && c === 0 && a !== 0) || (a === 0 && d === 0 && c !== 0);
+            divideButton.disabled = !isDivideStep;
+            if (isDivideStep) {
+                divideButton.classList.remove('btn-disabled');
+            } else {
+                divideButton.classList.add('btn-disabled');
+            }
+        }
+
+        function handleHover(type, action) {
+            const inputId = type === 'weight' ? 'weight-value' : 'xbox-value';
+            const input = document.getElementById(inputId);
+            const value = parseFloat(input.value);
+            if (isNaN(value)) return;
+
+            let text = '';
+            if (action === 'add') {
+                text = `+${value}`;
+            } else {
+                text = `-${value}`;
+            }
+            if (type === 'xbox') {
+                text += 'x';
+            }
+            
+            lhsPreview.innerHTML = `<div class="preview-box">\\(${text}\\)</div>`;
+            rhsPreview.innerHTML = `<div class="preview-box">\\(${text}\\)</div>`;
+            lhsPreview.classList.remove('opacity-0');
+            rhsPreview.classList.remove('opacity-0');
+            MathJax.typesetPromise([lhsPreview, rhsPreview]).catch(err => console.log(err));
+        }
+
+        function handleHoverOut() {
+            lhsPreview.classList.add('opacity-0');
+            rhsPreview.classList.add('opacity-0');
+        }
+
+        function handleDivideHoverIn() {
+            if (divideButton.disabled) return;
+            const input = document.getElementById('divide-value');
+            const divisor = parseFloat(input.value);
+            if (isNaN(divisor) || divisor === 0) return;
+
+            const { a, b, c, d } = currentEquation;
+            
+            if (b === 0 && c === 0 && a !== 0) { // Case Ax = D
+                if (d % divisor !== 0 || a % divisor !== 0) return;
+                const numSplits = Math.abs(divisor);
+                const newValue = d / divisor;
+                rhsObjects.classList.add('opacity-0');
+                rhsDividePreview.innerHTML = '';
+                for (let i = 0; i < numSplits; i++) {
+                    addObjectsToSide(rhsDividePreview, 0, newValue);
+                }
+                rhsDividePreview.classList.remove('opacity-0');
+            } else if (a === 0 && d === 0 && c !== 0) { // Case B = Cx
+                if (b % divisor !== 0 || c % divisor !== 0) return;
+                const numSplits = Math.abs(divisor);
+                const newValue = b / divisor;
+                lhsObjects.classList.add('opacity-0');
+                lhsDividePreview.innerHTML = '';
+                for (let i = 0; i < numSplits; i++) {
+                    addObjectsToSide(lhsDividePreview, 0, newValue);
+                }
+                lhsDividePreview.classList.remove('opacity-0');
+            }
+            MathJax.typesetPromise([lhsDividePreview, rhsDividePreview]).catch(err => console.log(err));
+        }
+
+        function handleDivideHoverOut() {
+            lhsObjects.classList.remove('opacity-0');
+            rhsObjects.classList.remove('opacity-0');
+            lhsDividePreview.classList.add('opacity-0');
+            rhsDividePreview.classList.add('opacity-0');
+        }
+
+        function resetEquation() {
+            isSolving = false;
+            updateAndDisplayEquation(originalEquation.a, originalEquation.b, originalEquation.c, originalEquation.d);
+        }
+
+        function triggerSuccess(solution) {
+             finalAnswerDisplay.innerHTML = `\\( x = ${solution} \\)`;
+             MathJax.typesetPromise([finalAnswerDisplay]).catch(err => console.log(err));
+             setTimeout(() => openModal(), 500);
+        }
+
+        function checkForSolution() {
+            if (isSolving) return;
+            const { a, b, c, d } = currentEquation;
+            
+            const isSolvedOnLeft = (a === 1 && b === 0 && c === 0);
+            const isSolvedOnRight = (c === 1 && d === 0 && a === 0);
+
+            if (isSolvedOnLeft) {
+                isSolving = true;
+                triggerSuccess(d);
+            } else if (isSolvedOnRight) {
+                isSolving = true;
+                setTimeout(() => {
+                    updateAndDisplayEquation(c, d, a, b); 
+                    triggerSuccess(b);
+                }, 500);
+            }
+        }
+        
+        function openModal() {
+            successModal.classList.remove('hidden');
+            setTimeout(() => {
+                successModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeModal() {
+            isSolving = false;
+            successModal.classList.add('opacity-0');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                successModal.classList.add('hidden');
+            }, 250);
+        }
+
+        function closeModalAndNew() {
+            closeModal();
+            setTimeout(() => generateNewEquation(), 300);
+        }
+
+        function getRandomInt(min, max, allowNegative = false) {
+            let val = Math.floor(Math.random() * (max - min + 1)) + min;
+            return allowNegative && Math.random() > 0.5 ? -val : val;
+        }
+    </script>
+</body>
+</html>
