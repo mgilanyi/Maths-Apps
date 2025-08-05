@@ -19,9 +19,16 @@
         .fulcrum {
             width: 0;
             height: 0;
-            border-left: 40px solid transparent;
-            border-right: 40px solid transparent;
-            border-bottom: 80px solid #d1d5db; /* gray-300 */
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid #d1d5db; /* gray-300 */
+        }
+        @media (min-width: 768px) {
+            .fulcrum {
+                border-left-width: 40px;
+                border-right-width: 40px;
+                border-bottom-width: 80px;
+            }
         }
         .x-box, .weight {
             display: flex;
@@ -63,8 +70,8 @@
 
         .home-link {
             position: absolute;
-            top: 2.5rem; /* Adjusted for padding */
-            left: 2rem;
+            top: 1.5rem;
+            left: 1rem;
             text-decoration: none;
             color: #67e8f9; /* cyan-300 */
             font-size: 1em;
@@ -73,6 +80,12 @@
             border-radius: 8px;
             transition: background-color 0.3s ease, color 0.3s ease;
             z-index: 20;
+        }
+        @media (min-width: 768px) {
+            .home-link {
+                top: 2.5rem;
+                left: 2rem;
+            }
         }
         .home-link:hover {
             background-color: #67e8f9;
@@ -87,23 +100,23 @@
         
         <!-- Main Menu -->
         <div id="main-menu" class="text-center pt-16">
-            <h1 class="text-4xl font-bold mb-8 text-slate-100">Solving Equations by Balancing</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <button onclick="showEquationScreen('one-step')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-                    <span class="text-2xl font-bold block">One-step</span>
-                    <span class="text-lg font-normal mt-2 block">\(\Large x+3=7\)</span>
+            <h1 class="text-3xl sm:text-4xl font-bold mb-8 text-slate-100">Solving Equations by Balancing</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <button onclick="showEquationScreen('one-step')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-4 md:py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <span class="text-xl md:text-2xl font-bold block">One-step</span>
+                    <span class="text-base md:text-lg font-normal mt-2 block">\(\Large x+3=7\)</span>
                 </button>
-                <button onclick="showEquationScreen('two-step')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-                    <span class="text-2xl font-bold block">Two-step</span>
-                    <span class="text-lg font-normal mt-2 block">\(\Large 2x+5=11\)</span>
+                <button onclick="showEquationScreen('two-step')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-4 md:py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <span class="text-xl md:text-2xl font-bold block">Two-step</span>
+                    <span class="text-base md:text-lg font-normal mt-2 block">\(\Large 2x+5=11\)</span>
                 </button>
-                <button onclick="showEquationScreen('both-sides')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-                     <span class="text-2xl font-bold block">Both Sides</span>
-                    <span class="text-lg font-normal mt-2 block">\(\Large 3x+1=x+9\)</span>
+                <button onclick="showEquationScreen('both-sides')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-4 md:py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                     <span class="text-xl md:text-2xl font-bold block">Both Sides</span>
+                    <span class="text-base md:text-lg font-normal mt-2 block">\(\Large 3x+1=x+9\)</span>
                 </button>
-                <button onclick="showEquationScreen('custom')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-                    <span class="text-2xl font-bold block">Custom</span>
-                    <span class="text-lg font-normal mt-2 block">Enter your own</span>
+                <button onclick="showEquationScreen('custom')" class="bg-cyan-500 hover:bg-cyan-600 text-white py-4 md:py-6 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    <span class="text-xl md:text-2xl font-bold block">Custom</span>
+                    <span class="text-base md:text-lg font-normal mt-2 block">Enter your own</span>
                 </button>
             </div>
             <div class="mt-8 flex items-center justify-center space-x-4">
@@ -119,11 +132,11 @@
         <div id="equation-screen" class="hidden">
             <div class="flex justify-between items-center mb-6">
                 <button onclick="showMainMenu()" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">&larr; Main Menu</button>
-                 <h2 id="equation-type-title" class="text-2xl font-bold text-slate-300"></h2>
-                <button onclick="generateNewEquation()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">New Equation</button>
+                 <h2 id="equation-type-title" class="text-xl md:text-2xl font-bold text-slate-300 text-center flex-grow"></h2>
+                <button onclick="generateNewEquation()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">New</button>
             </div>
 
-            <div id="equation-display" class="text-center text-4xl font-bold my-8 p-4 bg-slate-700 rounded-lg shadow-inner min-h-[80px]"></div>
+            <div id="equation-display" class="text-center text-3xl sm:text-4xl font-bold my-8 p-4 bg-slate-700 rounded-lg shadow-inner min-h-[80px]"></div>
             
             <div id="custom-input-container" class="hidden text-center my-8">
                 <label for="custom-equation" class="text-xl font-medium">Enter Linear Equation:</label>
@@ -132,20 +145,20 @@
                  <p id="error-message" class="text-red-400 mt-2 h-6"></p>
             </div>
 
-            <div class="relative mt-12 mb-20 h-80">
+            <div class="relative mt-12 mb-20 h-64 md:h-80">
                 <!-- Preview containers -->
                 <div id="lhs-preview" class="absolute left-0 top-0 w-1/2 h-full flex justify-center items-start pt-4 opacity-0"></div>
                 <div id="rhs-preview" class="absolute right-0 top-0 w-1/2 h-full flex justify-center items-start pt-4 opacity-0"></div>
                 
                 <!-- Object containers -->
-                <div id="lhs-objects" class="absolute left-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap"></div>
-                <div id="rhs-objects" class="absolute right-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap"></div>
-                <div id="rhs-divide-preview" class="absolute right-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap opacity-0"></div>
-                <div id="lhs-divide-preview" class="absolute left-0 bottom-[6.5rem] w-1/2 h-56 flex items-end justify-center p-2 gap-2 flex-wrap opacity-0"></div>
+                <div id="lhs-objects" class="absolute left-0 bottom-[4.5rem] md:bottom-[6.5rem] w-1/2 h-48 md:h-56 flex items-end justify-center p-2 gap-2 flex-wrap"></div>
+                <div id="rhs-objects" class="absolute right-0 bottom-[4.5rem] md:bottom-[6.5rem] w-1/2 h-48 md:h-56 flex items-end justify-center p-2 gap-2 flex-wrap"></div>
+                <div id="rhs-divide-preview" class="absolute right-0 bottom-[4.5rem] md:bottom-[6.5rem] w-1/2 h-48 md:h-56 flex items-end justify-center p-2 gap-2 flex-wrap opacity-0"></div>
+                <div id="lhs-divide-preview" class="absolute left-0 bottom-[4.5rem] md:bottom-[6.5rem] w-1/2 h-48 md:h-56 flex items-end justify-center p-2 gap-2 flex-wrap opacity-0"></div>
 
                 <!-- Seesaw apparatus -->
-                <div class="absolute bottom-0 w-full" style="height: 104px;">
-                    <div class="seesaw-beam w-full h-6 absolute bottom-20 rounded-md"></div>
+                <div class="absolute bottom-0 w-full" style="height: 50px; md-height: 104px;">
+                    <div class="seesaw-beam w-full h-4 md:h-6 absolute bottom-10 md:bottom-20 rounded-md"></div>
                     <div class="fulcrum absolute bottom-0 left-1/2 -translate-x-1/2"></div>
                 </div>
             </div>
@@ -154,9 +167,9 @@
             <div id="controls" class="bg-slate-700 p-4 rounded-lg shadow-lg">
                 <h3 class="text-xl font-bold text-center mb-4">Control Panel</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                    <!-- Modify Weights -->
+                    <!-- Modify Numbers -->
                     <div class="bg-slate-600 p-3 rounded-md">
-                        <label for="weight-value" class="block text-center font-medium mb-2">Modify Weights</label>
+                        <label for="weight-value" class="block text-center font-medium mb-2">Modify Numbers</label>
                         <input type="number" id="weight-value" class="w-full p-2 rounded bg-slate-500 text-white text-center" placeholder="Value">
                         <div class="flex justify-center gap-2 mt-2">
                             <button id="add-weight-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-1/2">Add</button>
